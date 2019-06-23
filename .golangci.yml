@@ -1,0 +1,27 @@
+run:
+  tests: false
+
+linters-settings:
+  govet:
+    check-shadowing: false
+  misspell:
+    locale: US
+
+linters:
+  enable-all: true
+  disable:
+    - maligned
+    - lll
+    - gocritic
+    - gochecknoinits
+    - gochecknoglobals
+    - deadcode
+    - unused
+    - errcheck
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    - linters:
+        - staticcheck
+      text: "SA1012:"
