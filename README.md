@@ -35,6 +35,16 @@ import (
 	"github.com/trivigy/squl"
 )
 
+type User struct {
+	ID       int64
+	Type     MockUserType
+	Name     string
+	Password []byte
+	Salt     []byte
+	Email    string
+	FullName string
+}
+
 func main() {
 squl := Builder{}
 	query, args, err := squl.Build(`

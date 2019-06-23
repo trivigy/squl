@@ -1,10 +1,7 @@
 package squl
 
 import (
-	"bytes"
 	"encoding/gob"
-	"encoding/json"
-	"strings"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -12,80 +9,47 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func init() {
-	gob.Register(MockUserType(Unknown))
-}
-
 const (
 	Unknown    = iota
 	unknownStr = "unknown"
 )
 
-type MockUserType int
+type UserType int
 
 const (
-	MockUserTypeIndividual MockUserType = iota + 1
-	MockUserTypeOrganization
+	UserTypeIndividual UserType = iota + 1
+	UserTypeOrganization
 )
 
 const (
-	mockUserTypeIndividualStr   = "individual"
-	mockUserTypeOrganizationStr = "organization"
+	userTypeIndividualStr   = "individual"
+	userTypeOrganizationStr = "organization"
 )
 
-var toStringUserType = map[MockUserType]string{
-	MockUserType(Unknown):    unknownStr,
-	MockUserTypeIndividual:   mockUserTypeIndividualStr,
-	MockUserTypeOrganization: mockUserTypeOrganizationStr,
+var toStringUserType = map[UserType]string{
+	UserType(Unknown):    unknownStr,
+	UserTypeIndividual:   userTypeIndividualStr,
+	UserTypeOrganization: userTypeOrganizationStr,
 }
 
-func NewUserType(raw string) (MockUserType, error) {
+func NewUserType(raw string) (UserType, error) {
 	switch raw {
-	case mockUserTypeIndividualStr:
-		return MockUserTypeIndividual, nil
-	case mockUserTypeOrganizationStr:
-		return MockUserTypeOrganization, nil
+	case userTypeIndividualStr:
+		return UserTypeIndividual, nil
+	case userTypeOrganizationStr:
+		return UserTypeOrganization, nil
 	default:
-		return MockUserType(Unknown), errors.Errorf("unknown type %q", raw)
+		return UserType(Unknown), errors.Errorf("unknown type %q", raw)
 	}
 }
 
-func (r MockUserType) String() string {
+func (r UserType) String() string {
 	return toStringUserType[r]
 }
 
-func (r *MockUserType) UnmarshalJSON(rbytes []byte) error {
-	var s string
-	if err := json.Unmarshal(rbytes, &s); err != nil {
-		return err
-	}
-	raw := strings.ToLower(s)
-	switch raw {
-	case mockUserTypeIndividualStr:
-		*r = MockUserTypeIndividual
-	case mockUserTypeOrganizationStr:
-		*r = MockUserTypeOrganization
-	default:
-		*r = Unknown
-		return errors.Errorf("unknown type %q", raw)
-	}
-	return nil
-}
-
-func (r MockUserType) MarshalJSON() ([]byte, error) {
-	buffer := bytes.NewBufferString(`"`)
-	if _, err := buffer.WriteString(toStringUserType[r]); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return buffer.Bytes(), nil
-}
-
-type MockUser struct {
+type User struct {
 	ID       int64
-	Type     MockUserType
+	Type     UserType
 	Name     string
 	Password []byte
 	Salt     []byte
@@ -93,11 +57,23 @@ type MockUser struct {
 	FullName string
 }
 
-type SqulSuite struct {
+func (r *UserType) Scan(src interface{}) error {
+	var err error
+	if *r, err = NewUserType(string(src.([]byte))); err != nil {
+		return err
+	}
+	return nil
+}
+
+type SQuLSuite struct {
 	suite.Suite
 }
 
-func (r *SqulSuite) TestBuild() {
+func (r *SQuLSuite) SetupSuite() {
+	gob.Register(UserType(Unknown))
+}
+
+func (r *SQuLSuite) TestBuild() {
 	squl := Builder{}
 	query, args, err := squl.Build(`
 		INSERT INTO users (
@@ -118,9 +94,9 @@ func (r *SqulSuite) TestBuild() {
 			{{if .Email}}{{$.Params.Mark "email" .Email}}{{else}}DEFAULT{{end}},
 			{{if .FullName}}{{$.Params.Mark "full_name" .FullName}}{{else}}DEFAULT{{end}}
 		)`,
-		MockUser{
+		User{
 			ID:       int64(11),
-			Type:     MockUserTypeIndividual,
+			Type:     UserTypeIndividual,
 			Name:     "unittest",
 			Password: []byte("password"),
 			Salt:     []byte("salt"),
@@ -133,7 +109,7 @@ func (r *SqulSuite) TestBuild() {
 	assert.EqualValues(r.T(), []interface{}{int64(11), "individual", "unittest", []byte("password"), []byte("salt"), "unittest@unittest.com", "unittest unittest"}, args)
 }
 
-func (r *SqulSuite) TestBuild_RepeatParameters() {
+func (r *SQuLSuite) TestBuild_RepeatParameters() {
 	squl := Builder{}
 	query, args, err := squl.Build(`
 		INSERT INTO users (
@@ -152,7 +128,7 @@ func (r *SqulSuite) TestBuild_RepeatParameters() {
 			{{if .ID}}{{$.Params.Mark "id" .ID}}{{else}}DEFAULT{{end}},
 			{{if .Name}}{{$.Params.Mark "name" .Name}}{{else}}DEFAULT{{end}},
 		)`,
-		MockUser{
+		User{
 			ID:   int64(11),
 			Name: "unittest",
 		},
@@ -163,5 +139,5 @@ func (r *SqulSuite) TestBuild_RepeatParameters() {
 }
 
 func TestSqulSuite(t *testing.T) {
-	suite.Run(t, new(SqulSuite))
+	suite.Run(t, new(SQuLSuite))
 }
