@@ -4,11 +4,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type session struct {
+// Session represts a single build session. It is an internal object is
+// represents the `$` inside of the template. It is exported only for purposes
+// of documenting available helper objects.
+type Session struct {
 	uid    uuid.UUID
-	Params marker
+	Params Params
 }
 
-func NewSession(uid uuid.UUID) *session {
-	return &session{uid: uid, Params: marker{entries: make(map[string]arg)}}
+func newSession(uid uuid.UUID) *Session {
+	return &Session{uid: uid, Params: Params{entries: make(map[string]arg)}}
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Builder defines the primary concurrency safe sql query builder object.
 type Builder struct {
 	cache sync.Map
 	ctx   context
@@ -21,13 +22,15 @@ func (r *Builder) context() *context {
 	return &r.ctx
 }
 
+// Build parses the provided go template and produces a query string and
+// arguments slice consumable by db.Exec().
 func (r *Builder) Build(text string, data interface{}) (string, []interface{}, error) {
 	var driver *template.Template
 	if value, ok := r.cache.Load(text); !ok {
 		var err error
 		driver, err = template.New("main").
 			Funcs(template.FuncMap{"squl": r.context}).
-			Parse(fmt.Sprintf(`{{$ := squl.Open}}%s;{{$.Params.GOB}}{{squl.Close $}}`, text))
+			Parse(fmt.Sprintf(`{{$ := squl.Open}}%s;{{$.Params.Args}}{{squl.Close $}}`, text))
 		if err != nil {
 			return "", nil, errors.WithStack(err)
 		}

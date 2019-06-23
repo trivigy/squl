@@ -11,15 +11,15 @@ type context struct {
 	sessions sync.Map
 }
 
-func (r *context) Open() (*session, error) {
-	sess := NewSession(uuid.New())
+func (r *context) Open() (*Session, error) {
+	sess := newSession(uuid.New())
 	if _, loaded := r.sessions.LoadOrStore(sess.uid.String(), sess); loaded {
 		return nil, errors.Errorf("sess uuid conflict %q", sess.uid.String())
 	}
 	return sess, nil
 }
 
-func (r *context) Close(sess *session) string {
+func (r *context) Close(sess *Session) string {
 	r.sessions.Delete(sess.uid.String())
 	return ""
 }

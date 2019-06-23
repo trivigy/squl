@@ -15,11 +15,14 @@ type arg struct {
 	value interface{}
 }
 
-type marker struct {
+// Params object for generating ordinal parameter markers for the provided
+// parameters.
+type Params struct {
 	entries map[string]arg
 }
 
-func (r *marker) Mark(key string, value interface{}) string {
+// Mark is used to mark a specific key and associated value as a parameter
+func (r *Params) Mark(key string, value interface{}) string {
 	entry, ok := r.entries[key]
 	if !ok {
 		entry = arg{index: len(r.entries) + 1, value: value}
@@ -28,13 +31,16 @@ func (r *marker) Mark(key string, value interface{}) string {
 	return fmt.Sprintf("$%d", entry.index)
 }
 
-func (r *marker) GOB() (string, error) {
+// Args prints a base64 encoded encoding/gob version of the parameters. This
+// exists for internal usage so I really wouldn't recommend using it unless you
+// know what you are doing and need it for some reason.
+func (r *Params) Args() (string, error) {
 	entries := make(map[int]interface{})
 	for _, entry := range r.entries {
 		entries[entry.index] = entry.value
 	}
 
-	var keys []int
+	keys := make([]int, 0)
 	for key := range entries {
 		keys = append(keys, key)
 	}
