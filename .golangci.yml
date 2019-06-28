@@ -18,6 +18,9 @@ linters:
     - deadcode
     - unused
     - errcheck
+    - unparam
+    - dupl
+    - gocyclo
 
 issues:
   exclude-use-default: false
