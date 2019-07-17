@@ -10,6 +10,7 @@ import (
 type BoolExpr struct {
 	Xpr  Node         `json:"xpr"`
 	Type BoolExprType `json:"type"`
+	Wrap bool         `json:"wrap"` /* indicate if expr should be wrapped with parentheses */
 	Args []Node       `json:"args"` /* arguments to this expression */
 }
 
@@ -40,5 +41,10 @@ func (r *BoolExpr) dump(counter *ordinalMarker) (string, error) {
 			}
 		}
 	}
-	return buffer.String(), nil
+
+	expr := buffer.String()
+	if r.Wrap {
+		expr = "(" + expr + ")"
+	}
+	return expr, nil
 }

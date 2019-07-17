@@ -51,6 +51,7 @@ func (r *SelectSuite) TestSelectSuiteDump() {
 							Name: "/",
 							LHS: &Expr{
 								Type: ExprTypeOp,
+								Wrap: true,
 								Name: "+",
 								LHS: &ColumnRef{
 									Fields: "temp_hi",

@@ -69,9 +69,11 @@ func (r *UpdateSuite) TestUpdateSuiteDump() {
 						LHS:  &ColumnRef{Fields: "cost"},
 						RHS: &Expr{
 							Type: ExprTypeOp,
+							Wrap: true,
 							Name: "+",
 							LHS: &Expr{
 								Type: ExprTypeOp,
+								Wrap: true,
 								Name: "/",
 								LHS:  &ColumnRef{Fields: "retail"},
 								RHS:  &ColumnRef{Fields: "cost"},

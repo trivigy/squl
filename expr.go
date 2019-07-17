@@ -11,6 +11,9 @@ import (
 type Expr struct {
 	Type ExprType `json:"type"` /* see above */
 
+	// Wrap indicates whether or not to wrap the expression in parentheses.
+	Wrap bool
+
 	// Name represents possibly-qualified name of operator.
 	Name interface{} `json:"name"` /* possibly-qualified name of operator */
 
@@ -36,7 +39,12 @@ func (r *Expr) dump(counter *ordinalMarker) (string, error) {
 			return "", err
 		}
 
-		return fmt.Sprintf("%s %s %s", lhsDump, opDump, rhsDump), nil
+		expr := fmt.Sprintf("%s %s %s", lhsDump, opDump, rhsDump)
+		if r.Wrap {
+			expr = "(" + expr + ")"
+		}
+
+		return expr, nil
 	default:
 		return "", errors.Errorf("unknown type %q", r.Type)
 	}
@@ -44,12 +52,6 @@ func (r *Expr) dump(counter *ordinalMarker) (string, error) {
 
 func (r *Expr) dumpOperand(counter *ordinalMarker, op interface{}) (string, error) {
 	switch op := op.(type) {
-	case *Expr:
-		opDump, err := op.dump(counter)
-		if err != nil {
-			return "", err
-		}
-		return fmt.Sprintf("(%s)", opDump), nil
 	case Node:
 		return op.dump(counter)
 	case string:
