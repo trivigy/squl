@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -14,6 +15,8 @@ type Const struct {
 
 func (r *Const) dump(counter *ordinalMarker) (string, error) {
 	switch val := r.Value.(type) {
+	case uuid.UUID:
+		return fmt.Sprintf("'%s'", val.String()), nil
 	case string:
 		return fmt.Sprintf("'%s'", val), nil
 	case int, int8, int16, int32, int64,

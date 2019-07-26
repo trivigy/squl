@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -60,6 +61,20 @@ func (r *ExprSuite) TestExprDump() {
 					},
 				},
 				RHS: &Const{Value: 2},
+			},
+		},
+		{
+			false,
+			"col1 = 'b720bca3-19f0-4ff4-97d2-53d865e74ab7'",
+			[]interface{}{},
+			&Expr{
+				Type: ExprTypeOp,
+				Name: "=",
+				LHS:  &ColumnRef{Fields: "col1"},
+				RHS: func() *Const {
+					guid, _ := uuid.Parse("b720bca3-19f0-4ff4-97d2-53d865e74ab7")
+					return &Const{Value: guid}
+				}(),
 			},
 		},
 		// {
