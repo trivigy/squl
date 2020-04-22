@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	query := `INSERT INTO users (id,level) VALUES (1,0) ON CONFLICT (id) DO UPDATE SET level = users.level + 1`
+	query := `INSERT INTO sal_emp VALUES ('Bill',ARRAY[10000, 10000, 10000, 10000],ARRAY[ARRAY["meeting", "lunch"],ARRAY["training", "presentation"]])`
+	// query := `INSERT INTO users (id,level) VALUES (1,0) ON CONFLICT (id) DO UPDATE SET level = users.level + 1`
 	// query := `INSERT INTO customers (name, email) VALUES ('Microsoft', 'hotline@microsoft.com') ON CONFLICT (name) DO NOTHING`
 	// query := `SELECT a.id,first_name,last_name FROM customer AS a,laptops AS l INNER JOIN payment ON payment.id = a.id LEFT JOIN people ON people.id = a.id JOIN cars ON cars.id = a.id`
 	// query := `SELECT * FROM weather`

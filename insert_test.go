@@ -295,9 +295,77 @@ func TestInsert_dump(t *testing.T) {
 							Value: &Expr{
 								Type: ExprTypeOp,
 								Name: "+",
-								LHS: &ColumnRef{Fields: []string{"users", "level"}},
-								RHS: &Const{Value: 1},
+								LHS:  &ColumnRef{Fields: []string{"users", "level"}},
+								RHS:  &Const{Value: 1},
 							},
+						},
+					},
+				},
+			},
+		},
+		{
+			false,
+			"INSERT INTO customers (name,email) VALUES ('Microsoft','hotline@microsoft.com') ON CONFLICT (id,name) DO NOTHING",
+			[]interface{}{},
+			&Insert{
+				Relation: &RangeVar{
+					Name: "customers",
+				},
+				Columns: &List{
+					&ResTarget{
+						Value: &ColumnRef{Fields: "name"},
+					},
+					&ResTarget{
+						Value: &ColumnRef{Fields: "email"},
+					},
+				},
+				Select: &Select{
+					Values: []Node{
+						&List{
+							&Const{Value: "Microsoft"},
+							&Const{Value: "hotline@microsoft.com"},
+						},
+					},
+				},
+				OnConflict: &OnConflict{
+					Infer: &Infer{
+						IndexElems: &List{
+							&IndexElem{Name: "id"},
+							&IndexElem{Name: "name"},
+						},
+					},
+					Action: OnConflictNothing,
+				},
+			},
+		},
+		{
+			false,
+			`INSERT INTO sal_emp VALUES ('Bill',ARRAY[10000,10000,10000,10000],ARRAY[ARRAY['meeting','lunch'],ARRAY['training','presentation']])`,
+			[]interface{}{},
+			&Insert{
+				Relation: &RangeVar{
+					Name: "sal_emp",
+				},
+				Select: &Select{
+					Values: []Node{
+						&List{
+							&Const{Value: "Bill"},
+							&Const{Value: &ArrayExpr{
+								&Const{Value: 10000},
+								&Const{Value: 10000},
+								&Const{Value: 10000},
+								&Const{Value: 10000},
+							}},
+							&Const{Value: &ArrayExpr{
+								&Const{Value: &ArrayExpr{
+									&Const{Value: "meeting"},
+									&Const{Value: "lunch"},
+								}},
+								&Const{Value: &ArrayExpr{
+									&Const{Value: "training"},
+									&Const{Value: "presentation"},
+								}},
+							}},
 						},
 					},
 				},

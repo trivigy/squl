@@ -2,7 +2,6 @@ package squl
 
 import (
 	"bytes"
-	stdfmt "fmt"
 
 	fmt "golang.org/x/xerrors"
 
@@ -26,7 +25,7 @@ func (r *IndexElem) dump(counter *ordinalMarker) (string, error) {
 	switch {
 	case r.Name != nil && r.Expr == nil:
 		if name, ok := r.Name.(string); ok {
-			if _, err := buffer.WriteString(stdfmt.Sprintf("(%s)", name)); err != nil {
+			if _, err := buffer.WriteString(name); err != nil {
 				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 		}

@@ -15,7 +15,7 @@ type Const struct {
 	Value interface{}
 }
 
-func (r *Const) dump(_ *ordinalMarker) (string, error) {
+func (r *Const) dump(counter *ordinalMarker) (string, error) {
 	switch val := r.Value.(type) {
 	case uuid.UUID:
 		return stdfmt.Sprintf("'%s'", val.String()), nil
@@ -28,6 +28,8 @@ func (r *Const) dump(_ *ordinalMarker) (string, error) {
 		return strconv.FormatFloat(float64(val), 'f', -1, 32), nil
 	case float64:
 		return strconv.FormatFloat(val, 'f', -1, 64), nil
+	case Node:
+		return val.dump(counter)
 	default:
 		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type (%T) for %q", val, val))
 	}

@@ -2,6 +2,7 @@ package squl
 
 import (
 	"bytes"
+	stdfmt "fmt"
 
 	fmt "golang.org/x/xerrors"
 
@@ -23,7 +24,7 @@ func (r *Infer) dump(counter *ordinalMarker) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		if _, err := buffer.WriteString(dump); err != nil {
+		if _, err := buffer.WriteString(stdfmt.Sprintf("(%s)", dump)); err != nil {
 			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
