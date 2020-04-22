@@ -1,9 +1,11 @@
 package squl
 
 import (
-	"fmt"
+	stdfmt "fmt"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // TypeCast describes the type casting expression.
@@ -14,16 +16,16 @@ type TypeCast struct {
 
 func (r *TypeCast) dump(counter *ordinalMarker) (string, error) {
 	if r.Arg == nil {
-		return "", errors.Errorf("required parameter %#v", r.Arg)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.Arg))
 	}
 
 	if r.Type == "" {
-		return "", errors.Errorf("required parameter %#v", r.Type)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.Type))
 	}
 
 	dump, err := r.Arg.dump(counter)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s::%s", dump, r.Type), nil
+	return stdfmt.Sprintf("%s::%s", dump, r.Type), nil
 }

@@ -6,14 +6,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
 
-type ExprSuite struct {
-	suite.Suite
-}
-
-func (r *ExprSuite) TestExprDump() {
+func TestExpr_dump(t *testing.T) {
 	testCases := []struct {
 		shouldFail bool
 		output     string
@@ -116,10 +111,10 @@ func (r *ExprSuite) TestExprDump() {
 		actual, err := testCase.expr.dump(counter)
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.EqualValues(r.T(), testCase.args, counter.args())
-		assert.Equal(r.T(), testCase.output, actual, failMsg)
+		assert.EqualValues(t, testCase.args, counter.args())
+		assert.Equal(t, testCase.output, actual, failMsg)
 	}
 
 	// query, args, err := (&Expr{
@@ -128,8 +123,4 @@ func (r *ExprSuite) TestExprDump() {
 	// 	LHS:  ColumnRef{},
 	// 	RHS:  ColumnRef{},
 	// }).dump()
-}
-
-func TestExprSuite(t *testing.T) {
-	suite.Run(t, new(ExprSuite))
 }

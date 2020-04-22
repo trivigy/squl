@@ -7,19 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewOrderByNulls(t *testing.T) {
+func TestNewOnConflictAction(t *testing.T) {
 	testCases := []struct {
 		shouldFail  bool
 		enumTypeStr string
-		enumType    OrderByNulls
+		enumType    OnConflictAction
 	}{
-		{true, unknownStr, OrderByNulls(Unknown)},
-		{false, "first", OrderByNullsFirst},
-		{false, "last", OrderByNullsLast},
+		{true, unknownStr, OnConflictAction(Unknown)},
+		{false, "nothing", OnConflictNothing},
+		{false, "update", OnConflictUpdate},
 	}
 
 	for i, testCase := range testCases {
-		actual, err := NewOrderByNulls(testCase.enumTypeStr)
+		actual, err := NewOnConflictAction(testCase.enumTypeStr)
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
 			assert.Fail(t, failMsg, err)
@@ -28,14 +28,14 @@ func TestNewOrderByNulls(t *testing.T) {
 	}
 }
 
-func TestOrderByNulls_String(t *testing.T) {
+func TestOnConflictAction_String(t *testing.T) {
 	testCases := []struct {
-		enumType    OrderByNulls
+		enumType    OnConflictAction
 		enumTypeStr string
 	}{
-		{OrderByNulls(Unknown), unknownStr},
-		{OrderByNullsFirst, "first"},
-		{OrderByNullsLast, "last"},
+		{OnConflictAction(Unknown), unknownStr},
+		{OnConflictNothing, "nothing"},
+		{OnConflictUpdate, "update"},
 	}
 
 	for i, testCase := range testCases {
@@ -44,19 +44,19 @@ func TestOrderByNulls_String(t *testing.T) {
 	}
 }
 
-func TestOrderByNulls_UnmarshalJSON(t *testing.T) {
+func TestOnConflictAction_UnmarshalJSON(t *testing.T) {
 	testCases := []struct {
 		shouldFail      bool
 		enumTypeJSONStr string
-		enumType        OrderByNulls
+		enumType        OnConflictAction
 	}{
-		{true, unknownJSONStr, OrderByNulls(Unknown)},
-		{false, `"first"`, OrderByNullsFirst},
-		{false, `"last"`, OrderByNullsLast},
+		{true, unknownJSONStr, OnConflictAction(Unknown)},
+		{false, `"nothing"`, OnConflictNothing},
+		{false, `"update"`, OnConflictUpdate},
 	}
 
 	for i, testCase := range testCases {
-		actual := OrderByNulls(Unknown)
+		actual := OnConflictAction(Unknown)
 		err := actual.UnmarshalJSON([]byte(testCase.enumTypeJSONStr))
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
@@ -66,14 +66,14 @@ func TestOrderByNulls_UnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestOrderByNulls_MarshalJSON(t *testing.T) {
+func TestOnConflictAction_MarshalJSON(t *testing.T) {
 	testCases := []struct {
-		enumType        OrderByNulls
+		enumType        OnConflictAction
 		enumTypeJSONStr string
 	}{
-		{OrderByNulls(Unknown), unknownJSONStr},
-		{OrderByNullsFirst, `"first"`},
-		{OrderByNullsLast, `"last"`},
+		{OnConflictAction(Unknown), unknownJSONStr},
+		{OnConflictNothing, `"nothing"`},
+		{OnConflictUpdate, `"update"`},
 	}
 
 	for i, testCase := range testCases {

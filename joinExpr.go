@@ -3,7 +3,9 @@ package squl
 import (
 	"bytes"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // JoinExpr defines the struct for generating JOIN clauses.
@@ -25,48 +27,48 @@ func (r *JoinExpr) dump(counter *ordinalMarker) (string, error) {
 		return "", err
 	}
 	if _, err := buffer.WriteString(lhsDump); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 
 	switch r.Type {
 	case JoinTypeDefault:
 		if _, err := buffer.WriteString(" JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeInner:
 		if _, err := buffer.WriteString(" INNER JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeLeft:
 		if _, err := buffer.WriteString(" LEFT JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeOuterLeft:
 		if _, err := buffer.WriteString(" LEFT OUTER JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeRight:
 		if _, err := buffer.WriteString(" RIGHT JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeOuterRight:
 		if _, err := buffer.WriteString(" RIGHT OUTER JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeFull:
 		if _, err := buffer.WriteString(" FULL JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeOuterFull:
 		if _, err := buffer.WriteString(" FULL OUTER JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case JoinTypeCross:
 		if _, err := buffer.WriteString(" CROSS JOIN "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	default:
-		return "", errors.Errorf("unknown type %q", r.Type)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", r.Type))
 	}
 
 	rhsDump, err := r.RHS.dump(counter)
@@ -74,18 +76,18 @@ func (r *JoinExpr) dump(counter *ordinalMarker) (string, error) {
 		return "", err
 	}
 	if _, err := buffer.WriteString(rhsDump); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 
 	if _, err := buffer.WriteString(" ON "); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	qualsDump, err := r.Qualifiers.dump(counter)
 	if err != nil {
 		return "", err
 	}
 	if _, err := buffer.WriteString(qualsDump); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.String(), nil
 }

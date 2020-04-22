@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // OrderByNulls describes NULLS sorting order.
@@ -38,7 +40,7 @@ func NewOrderByNulls(raw string) (OrderByNulls, error) {
 	case orderByNullsLastStr:
 		return OrderByNullsLast, nil
 	default:
-		return OrderByNulls(Unknown), errors.Errorf("unknown type %q", raw)
+		return OrderByNulls(Unknown), fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 }
 
@@ -61,7 +63,7 @@ func (r *OrderByNulls) UnmarshalJSON(rbytes []byte) error {
 		*r = OrderByNullsLast
 	default:
 		*r = Unknown
-		return errors.Errorf("unknown type %q", raw)
+		return fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 	return nil
 }
@@ -70,10 +72,10 @@ func (r *OrderByNulls) UnmarshalJSON(rbytes []byte) error {
 func (r OrderByNulls) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	if _, err := buffer.WriteString(toStringOrderByNulls[r]); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.Bytes(), nil
 }

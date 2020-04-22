@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // ExprType defines possible types of expressions.
@@ -135,7 +137,7 @@ func NewExprType(raw string) (ExprType, error) {
 	case exprTypeParenStr:
 		return ExprTypeParen, nil
 	default:
-		return ExprType(Unknown), errors.Errorf("unknown type %q", raw)
+		return ExprType(Unknown), fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 }
 
@@ -185,7 +187,7 @@ func (r *ExprType) UnmarshalJSON(rbytes []byte) error {
 		*r = ExprTypeParen
 	default:
 		*r = Unknown
-		return errors.Errorf("unknown type %q", s)
+		return fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", s))
 	}
 	return nil
 }
@@ -194,10 +196,10 @@ func (r *ExprType) UnmarshalJSON(rbytes []byte) error {
 func (r ExprType) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	if _, err := buffer.WriteString(toStringExprType[r]); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.Bytes(), nil
 }

@@ -1,26 +1,47 @@
 version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.5
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.12.7
+      - image: circleci/golang:1.14.2
 jobs:
   lint:
     executor: golang
     steps:
       - checkout
-      - run: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
-      - run: golangci-lint run ./...
+      - run:
+          name: Install golangci-lint
+          command: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sudo sh -s -- -b /usr/local/go/bin v1.24.0
+      - run:
+          name: Run linting rule validation
+          command: golangci-lint run --deadline 5m ./...
   test:
     executor: golang
     steps:
       - checkout
-      - run: go get -v -d ./...
-      - run: go test -v -race ./...
+      - run:
+          name: Create artifacts directory
+          command: |
+            mkdir -p /tmp/artifacts
+      - run:
+          name: Run unittests
+          no_output_timeout: 30m
+          command: |
+            go get -v -d ./...
+            go test -v -race -timeout 30m -coverprofile=coverage.txt -covermode=atomic ./...
+            go tool cover -html=coverage.txt -o coverage.html
+            mv coverage.txt coverage.html /tmp/artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
+      - codecov/upload:
+          file: /tmp/artifacts/coverage.txt
 workflows:
   version: 2
   release:
     jobs:
       - lint
       - test:
+          context: squl
           requires:
             - lint

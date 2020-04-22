@@ -2,9 +2,11 @@ package squl
 
 import (
 	"bytes"
-	"fmt"
+	stdfmt "fmt"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // OrderBy defines the ORDER BY clause.
@@ -24,7 +26,7 @@ type OrderBy struct {
 
 func (r *OrderBy) dump(counter *ordinalMarker) (string, error) {
 	if r.Value == nil {
-		return "", errors.Errorf("required parameter %#v", r.Value)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.Value))
 	}
 
 	buffer := bytes.NewBuffer(nil)
@@ -33,27 +35,27 @@ func (r *OrderBy) dump(counter *ordinalMarker) (string, error) {
 		return "", err
 	}
 	if _, err := buffer.WriteString(dump); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 
 	switch r.Direction {
 	case OrderByDirectionAsc:
 		if _, err := buffer.WriteString(" ASC"); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case OrderByDirectionDesc:
 		if _, err := buffer.WriteString(" DESC"); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	case OrderByDirectionUsing:
 		if _, err := buffer.WriteString(" USING"); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		if r.UsingOp == "" {
-			return "", errors.Errorf("required parameter %#v", r.UsingOp)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.UsingOp))
 		}
-		if _, err := buffer.WriteString(fmt.Sprintf(" %s", r.UsingOp)); err != nil {
-			return "", errors.WithStack(err)
+		if _, err := buffer.WriteString(stdfmt.Sprintf(" %s", r.UsingOp)); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 

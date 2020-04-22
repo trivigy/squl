@@ -3,7 +3,9 @@ package squl
 import (
 	"bytes"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // List describes a collection of nodes aggregated together.
@@ -18,11 +20,11 @@ func (r *List) dump(counter *ordinalMarker) (string, error) {
 		}
 
 		if _, err := buffer.WriteString(eachDump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		if i < len(*r)-1 {
 			if _, err := buffer.WriteString(","); err != nil {
-				return "", errors.WithStack(err)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 		}
 	}

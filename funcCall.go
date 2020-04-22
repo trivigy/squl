@@ -14,6 +14,6 @@ type FuncCall struct {
 	// Location       int        `json:"location"`         /* token location, or -1 if unknown */
 }
 
-func (r *FuncCall) dump(counter *ordinalMarker) (string, error) {
+func (r *FuncCall) dump(_ *ordinalMarker) (string, error) {
 	return "", nil
 }

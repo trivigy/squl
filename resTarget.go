@@ -2,15 +2,17 @@ package squl
 
 import (
 	"bytes"
-	"fmt"
+	stdfmt "fmt"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // ResTarget defines the struct for generating target clauses like column_name.
 type ResTarget struct {
 	// Name represents a column name or nil.
-	Name Node `json:"name"`
+	Name interface{} `json:"name"`
 
 	// Value represents the value expression to compute or assign
 	Value Node `json:"value"`
@@ -22,12 +24,13 @@ type ResTarget struct {
 func (r *ResTarget) dump(counter *ordinalMarker) (string, error) {
 	buffer := bytes.NewBuffer(nil)
 	if r.Name != nil {
-		dump, err := r.Name.dump(counter)
-		if err != nil {
-			return "", err
-		}
-		if _, err := buffer.WriteString(fmt.Sprintf("%s = ", dump)); err != nil {
-			return "", errors.WithStack(err)
+		switch name := r.Name.(type) {
+		case string:
+			if _, err := buffer.WriteString(stdfmt.Sprintf("%s = ", name)); err != nil {
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
+			}
+		default:
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("type error %q", r.Name))
 		}
 	}
 
@@ -36,12 +39,12 @@ func (r *ResTarget) dump(counter *ordinalMarker) (string, error) {
 		return "", err
 	}
 	if _, err := buffer.WriteString(valDump); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 
 	if r.Alias != "" {
-		if _, err := buffer.WriteString(fmt.Sprintf(" AS %s", r.Alias)); err != nil {
-			return "", errors.WithStack(err)
+		if _, err := buffer.WriteString(stdfmt.Sprintf(" AS %s", r.Alias)); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 	return buffer.String(), nil

@@ -21,6 +21,19 @@ linters:
     - unparam
     - dupl
     - gocyclo
+    - wsl
+    - gomnd
+    - stylecheck
+    - goconst
+    - unparam
+    - gochecknoglobals
+    - gochecknoinits
+    - funlen
+    - gocritic
+    - gocognit
+    - gocyclo
+    - gosec
+    - dogsled
 
 issues:
   exclude-use-default: false

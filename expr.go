@@ -1,10 +1,12 @@
 package squl
 
 import (
-	"fmt"
+	stdfmt "fmt"
 	"strings"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // Expr describes the expression clause.
@@ -39,14 +41,14 @@ func (r *Expr) dump(counter *ordinalMarker) (string, error) {
 			return "", err
 		}
 
-		expr := fmt.Sprintf("%s %s %s", lhsDump, opDump, rhsDump)
+		expr := stdfmt.Sprintf("%s %s %s", lhsDump, opDump, rhsDump)
 		if r.Wrap {
 			expr = "(" + expr + ")"
 		}
 
 		return expr, nil
 	default:
-		return "", errors.Errorf("unknown type %q", r.Type)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", r.Type))
 	}
 }
 
@@ -55,21 +57,21 @@ func (r *Expr) dumpOperand(counter *ordinalMarker, op interface{}) (string, erro
 	case Node:
 		return op.dump(counter)
 	case string:
-		return fmt.Sprintf("%q", op), nil
+		return stdfmt.Sprintf("%q", op), nil
 	case int:
-		return fmt.Sprintf("%d", op), nil
+		return stdfmt.Sprintf("%d", op), nil
 	default:
-		return "", errors.Errorf("unknown type (%T) for %q", op, op)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type (%T) for %q", op, op))
 	}
 }
 
-func (r *Expr) dumpOperator(counter *ordinalMarker, op interface{}) (string, error) {
+func (r *Expr) dumpOperator(_ *ordinalMarker, _ interface{}) (string, error) {
 	switch name := r.Name.(type) {
 	case string:
 		return name, nil
 	case []string:
-		return fmt.Sprintf("OPERATOR(%s)", strings.Join(name, ".")), nil
+		return stdfmt.Sprintf("OPERATOR(%s)", strings.Join(name, ".")), nil
 	default:
-		return "", errors.Errorf("unknown type (%T) for %q", name, name)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type (%T) for %q", name, name))
 	}
 }

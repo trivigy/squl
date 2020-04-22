@@ -3,7 +3,9 @@ package squl
 import (
 	"bytes"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // BoolExpr describes the AND/OR expression combinations.
@@ -23,21 +25,21 @@ func (r *BoolExpr) dump(counter *ordinalMarker) (string, error) {
 		}
 
 		if _, err := buffer.WriteString(eachDump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 
 		if i < len(r.Args)-1 {
 			switch r.Type {
 			case BoolExprTypeAnd:
 				if _, err := buffer.WriteString(" AND "); err != nil {
-					return "", errors.WithStack(err)
+					return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 				}
 			case BoolExprTypeOr:
 				if _, err := buffer.WriteString(" OR "); err != nil {
-					return "", errors.WithStack(err)
+					return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 				}
 			default:
-				return "", errors.Errorf("unknown type %q", r.Type)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", r.Type))
 			}
 		}
 	}

@@ -11,6 +11,6 @@ type Into struct {
 	// SkipData       bool           `json:"skipData"`       /* true for WITH NO DATA */
 }
 
-func (r *Into) dump(counter *ordinalMarker) (string, error) {
+func (r *Into) dump(_ *ordinalMarker) (string, error) {
 	return "", nil
 }

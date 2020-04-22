@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // BoolExprType describes the types of boolean expressions available.
@@ -38,7 +40,7 @@ func NewBoolExprType(raw string) (BoolExprType, error) {
 	case boolExprTypeOrStr:
 		return BoolExprTypeOr, nil
 	default:
-		return BoolExprType(Unknown), errors.Errorf("unknown type %q", raw)
+		return BoolExprType(Unknown), fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 }
 
@@ -61,7 +63,7 @@ func (r *BoolExprType) UnmarshalJSON(rbytes []byte) error {
 		*r = BoolExprTypeOr
 	default:
 		*r = Unknown
-		return errors.Errorf("unknown type %q", raw)
+		return fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 	return nil
 }
@@ -70,10 +72,10 @@ func (r *BoolExprType) UnmarshalJSON(rbytes []byte) error {
 func (r BoolExprType) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	if _, err := buffer.WriteString(toStringBoolExprType[r]); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.Bytes(), nil
 }

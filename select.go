@@ -2,9 +2,11 @@ package squl
 
 import (
 	"bytes"
-	"fmt"
+	stdfmt "fmt"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // Select defines the struct for the SELECT/SELECT INTO commands.
@@ -74,7 +76,7 @@ func (r *Select) dump(counter *ordinalMarker) (string, error) {
 	buffer := bytes.NewBuffer([]byte("SELECT"))
 	if r.Distinct != nil {
 		if _, err := buffer.WriteString(" DISTINCT"); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Distinct.dump(counter)
 		if err != nil {
@@ -82,87 +84,87 @@ func (r *Select) dump(counter *ordinalMarker) (string, error) {
 		}
 
 		if len(dump) > 0 {
-			if _, err := buffer.WriteString(fmt.Sprintf(" ON (%s)", dump)); err != nil {
-				return "", errors.WithStack(err)
+			if _, err := buffer.WriteString(stdfmt.Sprintf(" ON (%s)", dump)); err != nil {
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 		}
 	}
 
 	if r.Targets != nil {
 		if _, err := buffer.WriteString(" "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Targets.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.From != nil {
 		if _, err := buffer.WriteString(" FROM "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.From.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Where != nil {
 		if _, err := buffer.WriteString(" WHERE "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Where.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.OrderBy != nil {
 		if _, err := buffer.WriteString(" ORDER BY "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.OrderBy.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Offset != nil {
 		if _, err := buffer.WriteString(" OFFSET "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Offset.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Limit != nil {
 		if _, err := buffer.WriteString(" LIMIT "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Limit.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 

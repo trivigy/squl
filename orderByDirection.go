@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // OrderByDirection describes the ORDER BY direction ASC/DESC/USING.
@@ -45,7 +47,7 @@ func NewOrderByDirection(raw string) (OrderByDirection, error) {
 	case orderByDirectionUsingStr:
 		return OrderByDirectionUsing, nil
 	default:
-		return OrderByDirection(Unknown), errors.Errorf("unknown type %q", raw)
+		return OrderByDirection(Unknown), fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 }
 
@@ -70,7 +72,7 @@ func (r *OrderByDirection) UnmarshalJSON(rbytes []byte) error {
 		*r = OrderByDirectionUsing
 	default:
 		*r = Unknown
-		return errors.Errorf("unknown type %q", raw)
+		return fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 	return nil
 }
@@ -79,10 +81,10 @@ func (r *OrderByDirection) UnmarshalJSON(rbytes []byte) error {
 func (r OrderByDirection) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	if _, err := buffer.WriteString(toStringOrderByDirection[r]); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.Bytes(), nil
 }

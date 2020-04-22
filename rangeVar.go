@@ -2,9 +2,11 @@ package squl
 
 import (
 	"bytes"
-	"fmt"
+	stdfmt "fmt"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // RangeVar describes a schema qualified target table.
@@ -16,23 +18,23 @@ type RangeVar struct {
 	Alias string `json:"alias"`
 }
 
-func (r *RangeVar) dump(counter *ordinalMarker) (string, error) {
+func (r *RangeVar) dump(_ *ordinalMarker) (string, error) {
 	buffer := bytes.NewBuffer(nil)
 	if r.Schema != "" {
-		if _, err := buffer.WriteString(fmt.Sprintf("%s.", r.Schema)); err != nil {
-			return "", errors.WithStack(err)
+		if _, err := buffer.WriteString(stdfmt.Sprintf("%s.", r.Schema)); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 	if r.Name == "" {
-		return "", errors.Errorf("required parameter %#v", r.Name)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.Name))
 	}
 	if _, err := buffer.WriteString(r.Name); err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 
 	if r.Alias != "" {
-		if _, err := buffer.WriteString(fmt.Sprintf(" AS %s", r.Alias)); err != nil {
-			return "", errors.WithStack(err)
+		if _, err := buffer.WriteString(stdfmt.Sprintf(" AS %s", r.Alias)); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 	return buffer.String(), nil

@@ -3,7 +3,9 @@ package squl
 import (
 	"bytes"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // Update defines the struct for the UPDATE command.
@@ -36,66 +38,66 @@ func (r *Update) dump(counter *ordinalMarker) (string, error) {
 	buffer := bytes.NewBuffer([]byte("UPDATE"))
 	if r.Relation != nil {
 		if _, err := buffer.WriteString(" "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Relation.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Targets != nil {
 		if _, err := buffer.WriteString(" SET "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Targets.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.From != nil {
 		if _, err := buffer.WriteString(" FROM "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.From.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Where != nil {
 		if _, err := buffer.WriteString(" WHERE "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Where.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Returning != nil {
 		if _, err := buffer.WriteString(" RETURNING "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Returning.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 	return buffer.String(), nil

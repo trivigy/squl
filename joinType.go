@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // JoinType describes the types of joins available.
@@ -86,7 +88,7 @@ func NewJoinType(raw string) (JoinType, error) {
 	case joinTypeCrossStr:
 		return JoinTypeCross, nil
 	default:
-		return JoinType(Unknown), errors.Errorf("unknown type %q", raw)
+		return JoinType(Unknown), fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 }
 
@@ -122,7 +124,7 @@ func (r *JoinType) UnmarshalJSON(rbytes []byte) error {
 		*r = JoinTypeCross
 	default:
 		*r = Unknown
-		return errors.Errorf("unknown type %q", s)
+		return fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", s))
 	}
 	return nil
 }
@@ -131,10 +133,10 @@ func (r *JoinType) UnmarshalJSON(rbytes []byte) error {
 func (r JoinType) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	if _, err := buffer.WriteString(toStringJoinType[r]); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.Bytes(), nil
 }

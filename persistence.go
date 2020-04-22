@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // Persistence describes the SELECT INTO persistence type.
@@ -45,7 +47,7 @@ func NewPersistence(raw string) (Persistence, error) {
 	case persistenceTemporaryStr:
 		return PersistenceTemporary, nil
 	default:
-		return Persistence(Unknown), errors.Errorf("unknown type %q", raw)
+		return Persistence(Unknown), fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 }
 
@@ -70,7 +72,7 @@ func (r *Persistence) UnmarshalJSON(rbytes []byte) error {
 		*r = PersistenceTemporary
 	default:
 		*r = Unknown
-		return errors.Errorf("unknown type %q", raw)
+		return fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", raw))
 	}
 	return nil
 }
@@ -79,10 +81,10 @@ func (r *Persistence) UnmarshalJSON(rbytes []byte) error {
 func (r Persistence) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	if _, err := buffer.WriteString(toStringPersistence[r]); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	if _, err := buffer.WriteString(`"`); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 	}
 	return buffer.Bytes(), nil
 }

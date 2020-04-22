@@ -5,15 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/stretchr/testify/suite"
 )
 
-type InsertSuite struct {
-	suite.Suite
-}
-
-func (r *InsertSuite) TestInsertSuiteDump() {
+func TestInsert_dump(t *testing.T) {
 	testCases := []struct {
 		shouldFail bool
 		output     string
@@ -45,9 +39,9 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 				Select: &Select{
 					Values: []Node{
 						&List{
-							&Var{250},
-							&Var{"Anderson"},
-							&Var{"Jane"},
+							&Var{Value: 250},
+							&Var{Value: "Anderson"},
+							&Var{Value: "Jane"},
 							&Default{},
 						},
 					},
@@ -74,7 +68,7 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 					Values: []Node{
 						&List{
 							&Null{},
-							&Const{"John"},
+							&Const{Value: "John"},
 						},
 					},
 				},
@@ -105,16 +99,16 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 				Select: &Select{
 					Values: []Node{
 						&List{
-							&Var{250},
-							&Var{"Anderson"},
-							&Var{"Jane"},
+							&Var{Value: 250},
+							&Var{Value: "Anderson"},
+							&Var{Value: "Jane"},
 							&Default{},
 						},
 						&List{
-							&Var{251},
-							&Var{"Smith"},
-							&Var{"John"},
-							&Var{"US"},
+							&Var{Value: 251},
+							&Var{Value: "Smith"},
+							&Var{Value: "John"},
+							&Var{Value: "US"},
 						},
 					},
 				},
@@ -149,8 +143,8 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 				Select: &Select{
 					Values: []Node{
 						&List{
-							&Const{"Joe"},
-							&Const{"Cool"},
+							&Const{Value: "Joe"},
+							&Const{Value: "Cool"},
 						},
 					},
 				},
@@ -183,8 +177,8 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 				Select: &Select{
 					Values: []Node{
 						&List{
-							&Const{"Joe"},
-							&Const{"Cool"},
+							&Const{Value: "Joe"},
+							&Const{Value: "Cool"},
 						},
 					},
 				},
@@ -225,7 +219,86 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 						Type: ExprTypeOp,
 						Name: ">",
 						LHS:  &ColumnRef{Fields: "customer_id"},
-						RHS:  &Const{4000},
+						RHS:  &Const{Value: 4000},
+					},
+				},
+			},
+		},
+		{
+			false,
+			"INSERT INTO customers (name,email) VALUES ('Microsoft','hotline@microsoft.com') ON CONFLICT (name) DO NOTHING",
+			[]interface{}{},
+			&Insert{
+				Relation: &RangeVar{
+					Name: "customers",
+				},
+				Columns: &List{
+					&ResTarget{
+						Value: &ColumnRef{Fields: "name"},
+					},
+					&ResTarget{
+						Value: &ColumnRef{Fields: "email"},
+					},
+				},
+				Select: &Select{
+					Values: []Node{
+						&List{
+							&Const{Value: "Microsoft"},
+							&Const{Value: "hotline@microsoft.com"},
+						},
+					},
+				},
+				OnConflict: &OnConflict{
+					Infer: &Infer{
+						IndexElems: &List{
+							&IndexElem{Name: "name"},
+						},
+					},
+					Action: OnConflictNothing,
+				},
+			},
+		},
+		{
+			false,
+			`INSERT INTO users (id,level) VALUES (1,0) ON CONFLICT (id) DO UPDATE SET level = users.level + 1`,
+			[]interface{}{},
+			&Insert{
+				Relation: &RangeVar{
+					Name: "users",
+				},
+				Columns: &List{
+					&ResTarget{
+						Value: &ColumnRef{Fields: "id"},
+					},
+					&ResTarget{
+						Value: &ColumnRef{Fields: "level"},
+					},
+				},
+				Select: &Select{
+					Values: []Node{
+						&List{
+							&Const{Value: 1},
+							&Const{Value: 0},
+						},
+					},
+				},
+				OnConflict: &OnConflict{
+					Action: OnConflictUpdate,
+					Infer: &Infer{
+						IndexElems: &List{
+							&IndexElem{Name: "id"},
+						},
+					},
+					TargetList: &List{
+						&ResTarget{
+							Name: "level",
+							Value: &Expr{
+								Type: ExprTypeOp,
+								Name: "+",
+								LHS: &ColumnRef{Fields: []string{"users", "level"}},
+								RHS: &Const{Value: 1},
+							},
+						},
 					},
 				},
 			},
@@ -237,13 +310,9 @@ func (r *InsertSuite) TestInsertSuiteDump() {
 		actual, err := testCase.expected.dump(counter)
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.EqualValues(r.T(), testCase.args, counter.args())
-		assert.Equal(r.T(), testCase.output, actual, failMsg)
+		assert.EqualValues(t, testCase.args, counter.args())
+		assert.Equal(t, testCase.output, actual, failMsg)
 	}
-}
-
-func TestInsertSuite(t *testing.T) {
-	suite.Run(t, new(InsertSuite))
 }

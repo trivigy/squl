@@ -2,9 +2,11 @@ package squl
 
 import (
 	"bytes"
-	"fmt"
+	stdfmt "fmt"
 
-	"github.com/pkg/errors"
+	fmt "golang.org/x/xerrors"
+
+	"github.com/trivigy/squl/internal/global"
 )
 
 // Insert defines the struct for the INSERT command.
@@ -21,7 +23,8 @@ type Insert struct {
 	// Values represents the SELECT, VALUES, or NULL.
 	Select *Select `json:"select"`
 
-	// OnConflict *OnConflict `json:"onConflict"` /* ON CONFLICT clause */
+	// OnConflict represents the conflict resolution policy.
+	OnConflict *OnConflict `json:"onConflict"`
 
 	// Returning represents a list of expressions to return.
 	Returning Node `json:"returning"`
@@ -37,14 +40,14 @@ func (r *Insert) dump(counter *ordinalMarker) (string, error) {
 	buffer := bytes.NewBuffer([]byte("INSERT INTO"))
 	if r.Relation != nil {
 		if _, err := buffer.WriteString(" "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Relation.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
@@ -53,70 +56,83 @@ func (r *Insert) dump(counter *ordinalMarker) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		if _, err := buffer.WriteString(fmt.Sprintf(" (%s)", dump)); err != nil {
-			return "", errors.WithStack(err)
+		if _, err := buffer.WriteString(stdfmt.Sprintf(" (%s)", dump)); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Select == nil {
 		if r.Columns != nil && len(*r.Columns) > 0 {
-			return "", errors.Errorf("required parameter %#v", r.Select)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.Select))
 		}
 		if _, err := buffer.WriteString(" DEFAULT VALUES"); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	} else {
 		if !r.Select.isSelectStmt() && !r.Select.isValuesList() {
 			if r.Columns != nil && len(*r.Columns) > 0 {
-				return "", errors.Errorf("required parameter %#v", r.Select)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("required parameter %#v", r.Select))
 			}
 			if _, err := buffer.WriteString(" DEFAULT VALUES"); err != nil {
-				return "", errors.WithStack(err)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 		} else if r.Select.isSelectStmt() && !r.Select.isValuesList() {
 			if _, err := buffer.WriteString(" "); err != nil {
-				return "", errors.WithStack(err)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 			dump, err := r.Select.dump(counter)
 			if err != nil {
 				return "", err
 			}
 			if _, err := buffer.WriteString(dump); err != nil {
-				return "", errors.WithStack(err)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 		} else if !r.Select.isSelectStmt() && r.Select.isValuesList() {
 			if _, err := buffer.WriteString(" VALUES "); err != nil {
-				return "", errors.WithStack(err)
+				return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 			}
 			for i, list := range r.Select.Values {
 				dump, err := list.dump(counter)
 				if err != nil {
 					return "", err
 				}
-				if _, err := buffer.WriteString(fmt.Sprintf("(%s)", dump)); err != nil {
-					return "", errors.WithStack(err)
+				if _, err := buffer.WriteString(stdfmt.Sprintf("(%s)", dump)); err != nil {
+					return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 				}
 				if i < len(r.Select.Values)-1 {
 					if _, err := buffer.WriteString(","); err != nil {
-						return "", errors.WithStack(err)
+						return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 					}
 				}
 			}
 		} else {
-			return "", errors.Errorf("")
+			return "", fmt.Errorf("")
+		}
+	}
+
+	if r.OnConflict != nil {
+		if _, err := buffer.WriteString(" ON CONFLICT "); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
+		}
+		dump, err := r.OnConflict.dump(counter)
+		if err != nil {
+			return "", err
+		}
+		if _, err := buffer.WriteString(dump); err != nil {
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 
 	if r.Returning != nil {
 		if _, err := buffer.WriteString(" RETURNING "); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 		dump, err := r.Returning.dump(counter)
 		if err != nil {
 			return "", err
 		}
 		if _, err := buffer.WriteString(dump); err != nil {
-			return "", errors.WithStack(err)
+			return "", fmt.Errorf(global.ErrFmt, pkg.Name(), err)
 		}
 	}
 	return buffer.String(), nil
@@ -130,7 +146,7 @@ func (r *Insert) dump(counter *ordinalMarker) (string, error) {
 // 	}
 //
 // 	if r.Relation.Name == "" {
-// 		return "", nil, errors.Errorf("required parameter `Relation.Alias`")
+// 		return "", nil, fmt.Errorf("required parameter `Relation.Alias`")
 // 	}
 //
 // 	if r.Relation.Schema == "" {
@@ -177,7 +193,7 @@ func (r *Insert) dump(counter *ordinalMarker) (string, error) {
 // 			// 		buffer.WriteString(fmt.Sprintf(" %s", value.Fields[0]))
 // 			// 	}
 // 			// default:
-// 			// 	return "", nil, errors.Errorf("unknown type %q", exp.Value)
+// 			// 	return "", nil, fmt.Errorf("unknown type %q", exp.Value)
 // 			// }
 //
 // 			if exp.Alias != "" {

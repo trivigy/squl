@@ -5,14 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
 
-type ColumnRefSuite struct {
-	suite.Suite
-}
-
-func (r *ColumnRefSuite) TestColumnRefDump() {
+func TestColumnRef_dump(t *testing.T) {
 	testCases := []struct {
 		shouldFail bool
 		output     string
@@ -84,13 +79,9 @@ func (r *ColumnRefSuite) TestColumnRefDump() {
 		actual, err := testCase.columnRef.dump(counter)
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.EqualValues(r.T(), testCase.args, counter.args())
-		assert.Equal(r.T(), testCase.output, actual, failMsg)
+		assert.EqualValues(t, testCase.args, counter.args())
+		assert.Equal(t, testCase.output, actual, failMsg)
 	}
-}
-
-func TestColumnRefSuite(t *testing.T) {
-	suite.Run(t, new(ColumnRefSuite))
 }

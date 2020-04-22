@@ -5,14 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
 
-type BoolExprTypeSuite struct {
-	suite.Suite
-}
-
-func (r *BoolExprTypeSuite) TestBoolExprType_NewBoolExprType() {
+func TestNewBoolExprType(t *testing.T) {
 	testCases := []struct {
 		shouldFail  bool
 		enumTypeStr string
@@ -27,13 +22,13 @@ func (r *BoolExprTypeSuite) TestBoolExprType_NewBoolExprType() {
 		actual, err := NewBoolExprType(testCase.enumTypeStr)
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.Equal(r.T(), testCase.enumType, actual, failMsg)
+		assert.Equal(t, testCase.enumType, actual, failMsg)
 	}
 }
 
-func (r *BoolExprTypeSuite) TestBoolExprType_String() {
+func TestBoolExprType_String(t *testing.T) {
 	testCases := []struct {
 		enumType    BoolExprType
 		enumTypeStr string
@@ -45,11 +40,11 @@ func (r *BoolExprTypeSuite) TestBoolExprType_String() {
 
 	for i, testCase := range testCases {
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
-		assert.Equal(r.T(), testCase.enumTypeStr, testCase.enumType.String(), failMsg)
+		assert.Equal(t, testCase.enumTypeStr, testCase.enumType.String(), failMsg)
 	}
 }
 
-func (r *BoolExprTypeSuite) TestBoolExprType_UnmarshalJSON() {
+func TestBoolExprType_UnmarshalJSON(t *testing.T) {
 	testCases := []struct {
 		shouldFail      bool
 		enumTypeJSONStr string
@@ -65,13 +60,13 @@ func (r *BoolExprTypeSuite) TestBoolExprType_UnmarshalJSON() {
 		err := actual.UnmarshalJSON([]byte(testCase.enumTypeJSONStr))
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.Equal(r.T(), testCase.enumType, actual, failMsg)
+		assert.Equal(t, testCase.enumType, actual, failMsg)
 	}
 }
 
-func (r *BoolExprTypeSuite) TestBoolExprType_MarshalJSON() {
+func TestBoolExprType_MarshalJSON(t *testing.T) {
 	testCases := []struct {
 		enumType        BoolExprType
 		enumTypeJSONStr string
@@ -84,11 +79,7 @@ func (r *BoolExprTypeSuite) TestBoolExprType_MarshalJSON() {
 	for i, testCase := range testCases {
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		actual, err := testCase.enumType.MarshalJSON()
-		assert.Nil(r.T(), err, failMsg)
-		assert.Equal(r.T(), testCase.enumTypeJSONStr, string(actual), failMsg)
+		assert.Nil(t, err, failMsg)
+		assert.Equal(t, testCase.enumTypeJSONStr, string(actual), failMsg)
 	}
-}
-
-func TestBoolExprTypeSuite(t *testing.T) {
-	suite.Run(t, new(BoolExprTypeSuite))
 }

@@ -5,14 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
 
-type PersistenceSuite struct {
-	suite.Suite
-}
-
-func (r *PersistenceSuite) TestUserType_NewUserType() {
+func TestNewPersistence(t *testing.T) {
 	testCases := []struct {
 		shouldFail  bool
 		enumTypeStr string
@@ -28,13 +23,13 @@ func (r *PersistenceSuite) TestUserType_NewUserType() {
 		actual, err := NewPersistence(testCase.enumTypeStr)
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.Equal(r.T(), testCase.enumType, actual, failMsg)
+		assert.Equal(t, testCase.enumType, actual, failMsg)
 	}
 }
 
-func (r *PersistenceSuite) TestUserType_String() {
+func TestPersistence_String(t *testing.T) {
 	testCases := []struct {
 		enumType    Persistence
 		enumTypeStr string
@@ -47,11 +42,11 @@ func (r *PersistenceSuite) TestUserType_String() {
 
 	for i, testCase := range testCases {
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
-		assert.Equal(r.T(), testCase.enumTypeStr, testCase.enumType.String(), failMsg)
+		assert.Equal(t, testCase.enumTypeStr, testCase.enumType.String(), failMsg)
 	}
 }
 
-func (r *PersistenceSuite) TestUserType_UnmarshalJSON() {
+func TestPersistence_UnmarshalJSON(t *testing.T) {
 	testCases := []struct {
 		shouldFail      bool
 		enumTypeJSONStr string
@@ -68,13 +63,13 @@ func (r *PersistenceSuite) TestUserType_UnmarshalJSON() {
 		err := actual.UnmarshalJSON([]byte(testCase.enumTypeJSONStr))
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		if (err != nil) != testCase.shouldFail {
-			assert.Fail(r.T(), failMsg, err)
+			assert.Fail(t, failMsg, err)
 		}
-		assert.Equal(r.T(), testCase.enumType, actual, failMsg)
+		assert.Equal(t, testCase.enumType, actual, failMsg)
 	}
 }
 
-func (r *PersistenceSuite) TestUserType_MarshalJSON() {
+func TestPersistence_MarshalJSON(t *testing.T) {
 	testCases := []struct {
 		enumType        Persistence
 		enumTypeJSONStr string
@@ -88,11 +83,7 @@ func (r *PersistenceSuite) TestUserType_MarshalJSON() {
 	for i, testCase := range testCases {
 		failMsg := fmt.Sprintf("testCase: %d %v", i, testCase)
 		actual, err := testCase.enumType.MarshalJSON()
-		assert.Nil(r.T(), err, failMsg)
-		assert.Equal(r.T(), testCase.enumTypeJSONStr, string(actual), failMsg)
+		assert.Nil(t, err, failMsg)
+		assert.Equal(t, testCase.enumTypeJSONStr, string(actual), failMsg)
 	}
-}
-
-func TestPersistenceSuite(t *testing.T) {
-	suite.Run(t, new(PersistenceSuite))
 }

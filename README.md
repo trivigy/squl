@@ -1,8 +1,9 @@
 # SQuL
-[![CircleCI branch](https://img.shields.io/circleci/project/github/trivigy/squl/master.svg?label=master&logo=circleci)](https://circleci.com/gh/trivigy/workflows/squl)
+[![CircleCI](https://img.shields.io/circleci/project/github/trivigy/squl/master.svg?label=master&logo=circleci)](https://circleci.com/gh/trivigy/workflows/squl)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
-[![](https://godoc.org/github.com/trivigy/squl?status.svg&style=flat)](http://godoc.org/github.com/trivigy/squl)
-[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/trivigy/squl.svg?style=flat&color=e36397&label=release)](https://github.com/trivigy/squl/releases/latest)
+[![go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/trivigy/squl)
+[![SemVer](https://img.shields.io/github/tag/trivigy/squl.svg?style=flat&color=e36397&label=release)](https://github.com/trivigy/squl/releases/latest)
+[![CodeCov](https://codecov.io/gh/trivigy/squl/branch/master/graph/badge.svg)](https://codecov.io/gh/trivigy/squl)
 
 Unlike all the other sql query builder tools that I have encountered out there 
 in the golang ecosystem, this tool does not introduce a new custom designed 
