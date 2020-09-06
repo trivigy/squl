@@ -47,6 +47,38 @@ func (r *Expr) dump(counter *ordinalMarker) (string, error) {
 		}
 
 		return expr, nil
+	case ExprTypeOf:
+		lhsDump, err := r.dumpOperand(counter, r.LHS)
+		if err != nil {
+			return "", err
+		}
+
+		var opDump string
+		switch r.Name {
+		case "=":
+		case "<>":
+			opDump = "NOT"
+		default:
+			return "", fmt.Errorf("unknown operator %q", r.Name)
+		}
+
+		rhsDump, err := r.dumpOperand(counter, r.RHS)
+		if err != nil {
+			return "", err
+		}
+
+		ops := []string{lhsDump, "IS"}
+		if opDump != "" {
+			ops = append(ops, opDump)
+		}
+		ops = append(ops, rhsDump)
+
+		expr := strings.Join(ops, " ")
+		if r.Wrap {
+			expr = "(" + expr + ")"
+		}
+
+		return expr, nil
 	default:
 		return "", fmt.Errorf(global.ErrFmt, pkg.Name(), fmt.Errorf("unknown type %q", r.Type))
 	}

@@ -72,6 +72,17 @@ func TestExpr_dump(t *testing.T) {
 				}(),
 			},
 		},
+		{
+			false,
+			"unittest IS NOT NULL",
+			[]interface{}{},
+			&Expr{
+				Type: ExprTypeOf,
+				Name: "<>",
+				LHS:  &ColumnRef{Fields: "unittest"},
+				RHS:  &Null{},
+			},
+		},
 		// {
 		// 	false,
 		// 	"max(11, $1) = 20",
